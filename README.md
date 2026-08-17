@@ -175,7 +175,8 @@ That organization is one of the main ideas behind RavenEye.
 
 **Some guidelines**:
 
-if you got rate limit or bad gateway So you should use proxy or VPN if you have one if not try free.
+if you got rate limit or bad gateway So you should use proxy or VPN if you have one if not try free vpn like proton.
+
 there's solution for stay fully anonymous and bypass rate limit is using proxychains4 as you can see :
 
 ```
