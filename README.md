@@ -1,189 +1,204 @@
 # 🦅 RavenEye
 
-### Full Reconnaissance Engine for Bug Hunters
+### Automated Reconnaissance Pipeline for Bug Hunters
 
-> **I didn't build RavenEye because there weren't enough recon tools. I built it because I couldn't find a workflow that made sense to me.**
+RavenEye is an all-in-one reconnaissance tool that connects multiple recon stages into a single workflow.
 
-## Why I Created RavenEye
+Instead of running many tools manually and moving results between them, RavenEye automates the process and organizes the results for you.
 
-I started learning web security and bug hunting through platforms such as PortSwigger and other security labs.
-
-Those environments were great for learning how vulnerabilities work. I could focus on understanding things like authentication issues, access control, injection, request manipulation, and other web security concepts without having to worry about building a complete reconnaissance pipeline first.
-
-But moving from labs to real-world authorized targets exposed a completely different challenge:
-
-**Reconnaissance.**
-
-Suddenly, before I could even start looking for vulnerabilities, I had to answer questions like:
-
-```text
-What subdomains exist?
-        ↓
-Which ones are alive?
-        ↓
-Which ones resolve?
-        ↓
-What technologies are they running?
-        ↓
-What ports and services are exposed?
-        ↓
-What URLs exist?
-        ↓
-What historical URLs exist?
-        ↓
-What parameters exist?
-        ↓
-Which assets are actually interesting?
-```
-![Project Screenshot](images/swappy-20260817-220319.png)
-![Project Screenshot](images/swappy-20260817-234747.png)
-
-And for every step there seemed to be another tool.
-
-Subfinder. Assetfinder. Findomain. DNSX. HTTPX. Naabu. Katana. Waymore. ParamSpider. URLScan. crt.sh...
-
-Then came the blogs, cheat sheets, automation scripts, different methodologies, different opinions about what to enumerate, and different ways of connecting the results together.
-
-I found myself spending more time figuring out **how to perform recon** than actually analyzing the attack surface.
-
-The problem wasn't that the tools were bad.
-
-The problem was that I needed a way to **connect them into a workflow**.
-
-That's why I built **RavenEye**.
+> **Less time managing recon. More time analyzing the target.**
 
 ---
 
-## 🦅 What RavenEye Is
+## 🔎 What It Does
 
-RavenEye is my attempt to turn a fragmented reconnaissance process into a single, structured pipeline.
+RavenEye can perform:
 
-Instead of manually jumping from one tool to another:
+* Subdomain discovery
+* Alive host detection
+* DNS resolution
+* HTTP fingerprinting
+* Port discovery
+* URL discovery
+* Crawling
+* Historical URL collection
+* Parameter discovery
+* Result organization
+
+### Workflow
 
 ```text
-subdomain tool
-      ↓
-copy/paste
-      ↓
-HTTP probing
-      ↓
-copy/paste
-      ↓
+Target
+  │
+  ├── Subdomains
+  ├── Alive Hosts
+  ├── DNS
+  ├── Technologies
+  ├── Ports
+  ├── URLs
+  │    ├── Crawled
+  │    └── Historical
+  │
+  └── Parameters
+```
+
+---
+
+## 🖼️ Screenshots
+
+![RavenEye Screenshot](images/swappy-20260817-220319.png)
+
+![RavenEye Screenshot](images/swappy-20260817-234747.png)
+
+---
+
+# 🚀 Usage
+
+RavenEye has two input options:
+
+| Option | Description                       |
+| ------ | --------------------------------- |
+| `-t`   | Scan a single domain              |
+| `-l`   | Scan a list of domains/subdomains |
+
+And two scan modes:
+
+| Mode     | Description             |
+| -------- | ----------------------- |
+| `-small` | Fast reconnaissance     |
+| `-full`  | Complete reconnaissance |
+
+---
+
+### Single Domain
+
+**Small scan:**
+
+```bash
+./RavenEye.sh -t target.com -small
+```
+
+**Full scan:**
+
+```bash
+./RavenEye.sh -t target.com -full
+```
+
+---
+
+### Scope List
+
+Use `-l` when you already have a list of **authorized assets** you want RavenEye to scan.
+
+```bash
+./RavenEye.sh -l scope.txt -full
+```
+
+Example `scope.txt`:
+
+```text
+example.com
+api.example.com
+app.example.com
+admin.example.com
+```
+
+You can also use:
+
+```bash
+./RavenEye.sh -l scope.txt -small
+```
+
+With `-l`, RavenEye works with the assets you provide. You don't need to manually fuzz/enumerate the same subdomains beforehand.
+
+---
+
+## ⚡ Small vs Full
+
+### `-small`
+
+Use this when you want quick results.
+
+```text
+Subdomain discovery
+        ↓
+Alive host detection
+```
+
+Good for quickly identifying reachable assets.
+
+### `-full`
+
+Runs the complete recon pipeline, including crawling, historical URLs, and parameter discovery.
+
+```text
+Subdomains
+   ↓
+Alive hosts
+   ↓
 DNS
-      ↓
-copy/paste
-      ↓
-ports
-      ↓
-copy/paste
-      ↓
-crawler
-      ↓
-copy/paste
-      ↓
-parameters
-      ↓
-???
+   ↓
+HTTP fingerprinting
+   ↓
+Ports
+   ↓
+URLs
+   ↓
+Parameters
 ```
 
-RavenEye connects the stages:
+A full scan can take **20+ minutes**, depending on the size of the target.
 
-```text
-                    TARGET
-                       │
-                       ▼
-             SUBDOMAIN DISCOVERY
-                       │
-                       ▼
-                ALIVE FILTERING
-                       │
-                       ▼
-             HTTP FINGERPRINTING
-                       │
-                       ▼
-                DNS RESOLUTION
-                       │
-                       ▼
-                PORT DISCOVERY
-                       │
-                       ▼
-            URL / CONTENT DISCOVERY
-                       │
-              ┌────────┴────────┐
-              ▼                 ▼
-            KATANA           WAYMORE
-              │                 │
-              └────────┬────────┘
-                       ▼
-                  URL MERGING
-                       │
-                       ▼
-              PARAMETER DISCOVERY
-                       │
-                       ▼
-             CATEGORIZED RESULTS
-```
-
-The goal isn't to replace the researcher.
-
-The goal is to make the reconnaissance phase **less fragmented and easier to understand**.
+You can usually start reviewing discovered subdomains, DNS results, and alive hosts before the entire scan finishes.
 
 ---
 
-## 💡 The Problem RavenEye Is Trying to Solve
+## 🌐 Rate Limits / Network Issues
 
-When you're learning vulnerabilities in a lab, the interesting part is usually the vulnerability itself.
-
-On a real authorized target, the first challenge can simply be:
-
-> **"Where are all the things I should be looking at?"**
-
-A single domain can lead to hundreds or thousands of assets, URLs, services, technologies, and parameters.
-
-RavenEye is designed to help transform that large and messy dataset into something that can be inspected systematically.
+If you encounter rate limits or network errors such as `429` or `502`, you can use a proxy or VPN when appropriate.
 
 For example:
 
+```bash
+proxychains4 -q ./RavenEye.sh -l scope.txt -full
+```
+
+> A proxy or VPN does not guarantee anonymity or bypass all rate limits.
+
+---
+
+## 🧰 Tools
+
+RavenEye connects several reconnaissance tools and sources, including:
+
+* Subfinder
+* Assetfinder
+* Findomain
+* DNSX
+* HTTPX
+* Naabu
+* Katana
+* Waymore
+* ParamSpider
+* URLScan
+* crt.sh
+
+---
+
+## 🦅 Why RavenEye?
+
+I built RavenEye because recon often means jumping between many different tools and manually connecting their results.
+
+RavenEye puts those steps into one workflow:
+
 ```text
-x.com
-│
-├── Subdomains
-│   ├── alive
-│   ├── unresolved
-│   └── categorized
-│
-├── DNS
-│   └── resolved hosts
-│
-├── Technologies
-│   └── fingerprinted applications
-│
-├── Services
-│   └── discovered ports
-│
-├── URLs
-│   ├── crawled
-│   ├── historical
-│   └── merged
-│
-└── Parameters
-    └── discovered parameters
-```
-That organization is one of the main ideas behind RavenEye.
-
-**Recon shouldn't just collect data. It should make the data easier to reason about.**
-
-
-**Some guidelines**:
-
-if you got rate limit or bad gateway So you should use proxy or VPN if you have one if not try free vpn like proton.
-
-there's solution for stay fully anonymous and bypass rate limit is using proxychains4 as you can see :
-
-```
-proxychains4 -q ./RavenEye.sh.x -l x -full
+DISCOVER → VERIFY → ENUMERATE → CRAWL → ANALYZE
 ```
 
-**Note:**
+**Recon should be a workflow, not a collection of commands.**
 
-**the full recon can take more than 20 minutes but that cannot preventing you from retrieve all subs dns resolved and subdomain alive in 3 minutes so you can start with it. until the param miner finish because it scan params for each alive subdomain and it depend also on the company large.**
+---
+
+## ⚠️ Authorization
+
+RavenEye is intended for **authorized security testing only**, such as bug bounty programs, security labs, or systems you own or have permission to test.
