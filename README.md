@@ -51,6 +51,12 @@ Target
 ![RavenEye Screenshot](images/swappy-20260817-234747.png)
 
 ---
+## 📦 Installation
+
+```bash
+chmod +x Installer.sh && ./Installer.sh && chmod +x RavenEye.sh
+```
+---
 
 # 🚀 Usage
 
