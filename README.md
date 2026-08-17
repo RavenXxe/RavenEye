@@ -182,3 +182,5 @@ there's solution for stay fully anonymous and bypass rate limit is using proxych
 ```
 proxychains4 -q ./RavenEye.sh.x -l x -full
 ```
+
+**Note the full recon can take more 20 minutes but that cannot preventing you from retrieve all subs dns resolved and subdomain alive in 3 minutes so you can start with it. until the param miner finish because it scan params for each alive subdomain and it depend also on the company large.**
