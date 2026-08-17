@@ -36,6 +36,7 @@ What parameters exist?
 Which assets are actually interesting?
 ```
 ![Project Screenshot](images/swappy-20260817-220319.png)
+![Project Screenshot](images/swappy-20260817-234747.png)
 
 And for every step there seemed to be another tool.
 
