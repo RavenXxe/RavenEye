@@ -719,8 +719,52 @@ run_tool 13 "WAYMORE" \
 run_tool 14 "URL MERGE" \
     bash -o pipefail -c '
         cat "$1" "$2" 2>/dev/null |
-        sort -u > "$3"
-    ' _ "$TMPDIR_RAVEN/waymore.txt" "$TMPDIR_RAVEN/katana_full.txt" "$URLS"
+        awk -v scope_file="$3" '\''
+        BEGIN {
+            while ((getline d < scope_file) > 0) {
+                gsub(/\r/, "", d)
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", d)
+
+                if (d != "")
+                    scope[tolower(d)] = 1
+            }
+
+            close(scope_file)
+        }
+
+        {
+            original = $0
+            url = $0
+
+            # Remove scheme
+            sub(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//, "", url)
+
+            # Extract hostname
+            host = url
+            sub(/\/.*$/, "", host)
+
+            # Remove port
+            sub(/:[0-9]+$/, "", host)
+
+            host = tolower(host)
+
+            # Exact domain or subdomain
+            for (d in scope) {
+                if (host == d ||
+                    (length(host) > length(d) &&
+                     substr(host, length(host) - length(d), length(d) + 1) == "." d)) {
+                    print original
+                    next
+                }
+            }
+        }
+        '\'' |
+        sort -u > "$4"
+    ' _ \
+    "$TMPDIR_RAVEN/waymore.txt" \
+    "$TMPDIR_RAVEN/katana_full.txt" \
+    "$TARGETS_FILE" \
+    "$URLS"
 
 URL_COUNT=$(count_lines "$URLS")
 
@@ -961,7 +1005,6 @@ printf '\n'
 line
 
 printf '%b\n' \
-
     "${CYAN}${BOLD}  RECON COMPLETE 🎊🎊 ${RESET}"
 
 printf '\n'
