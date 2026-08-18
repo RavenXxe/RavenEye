@@ -201,6 +201,8 @@ RavenEye puts those steps into one workflow:
 DISCOVER → VERIFY → ENUMERATE → CRAWL → ANALYZE
 ```
 
+**Contributions are welcome. Feel free to open a PR.**
+
 **Recon should be a workflow, not a collection of commands.**
 
 ---
