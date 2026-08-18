@@ -675,7 +675,6 @@ run_tool 11 "NAABU" \
     bash -o pipefail -c '
         naabu \
             -l "$1" \
-            -sV-fast  \
             -silent \
             -top-ports 100 \
             > "$2"
@@ -922,15 +921,6 @@ run_tool 16 "Paramspider" \
 
 PARAM_COUNT=0
 
-if compgen -G "$PARAMS_DIR/*.txt" >/dev/null 2>&1; then
-
-    find "$PARAMS_DIR" \
-        -maxdepth 1 \
-        -type f \
-        -name "*.txt" \
-        ! -name "all.txt" \
-        -empty \
-        -delete
 
     if compgen -G "$PARAMS_DIR/*.txt" >/dev/null 2>&1; then
 
@@ -942,12 +932,19 @@ if compgen -G "$PARAMS_DIR/*.txt" >/dev/null 2>&1; then
         mv "$PARAMS_DIR/all.txt.tmp" \
             "$PARAMS_DIR/all.txt"
 
+        # Remove individual param files, keep only the merged all.txt
+        find "$PARAMS_DIR" \
+            -maxdepth 1 \
+            -type f \
+            -name "*.txt" \
+            ! -name "all.txt" \
+            -delete
+
         PARAM_COUNT=$(
             wc -l < "$PARAMS_DIR/all.txt" |
             tr -d " "
         )
     fi
-fi
 
 rm -rf "$PARAM_TMP"
 
@@ -964,6 +961,7 @@ printf '\n'
 line
 
 printf '%b\n' \
+
     "${CYAN}${BOLD}  RECON COMPLETE 🎊🎊 ${RESET}"
 
 printf '\n'
@@ -994,6 +992,7 @@ printf '%b\n' \
     "${MAGENTA}${BOLD}  RavenEye  •  @ravenXxx${RESET}"
 
 line
+
 printf '\n'
 
 rm -rf "$TMPDIR_RAVEN" 2>/dev/null
