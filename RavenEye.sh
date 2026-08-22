@@ -485,11 +485,11 @@ run_tool 01 "HACKERTARGET" \
         done < "$1"
     ' _ "$TARGETS_FILE" "$SUBS"
 
-run_tool 02 "CRT.SH" \
+run_tool 02 "CRT.name" \
     bash -o pipefail -c '
         while IFS= read -r d; do
             [[ -z "$d" ]] && continue
-            # crt.sh returns HTTP 404 for domains it has no
+            # crt.name returns HTTP 404 for domains it has no
             # certificate data for (and sometimes while throttling).
             # That is a normal, expected outcome for *some* domains
             # in the list, not a hard error - so we no longer let
@@ -498,13 +498,10 @@ run_tool 02 "CRT.SH" \
             # warning instead of a raw FAILED, but always continue
             # to the next domain and never fail the whole step for
             # a single 404.
-            curl -fsS \
-                "https://crt.sh/?q=$d&output=json" \
-                2>>"$TMPDIR_RAVEN/tool_02.log" |
-            jq -r ".[].name_value | split(\"\\n\")[]" 2>/dev/null |
-            sed "s/^\\*\\.//" >> "$2"
-        done < "$1"
-        exit 0
+             curl -fsS \
+                "https://crt.name/v1/search?apex=$d" | sort -u
+             done < "$1"
+             exit 0
     ' _ "$TARGETS_FILE" "$SUBS"
 
 run_tool 03 "SUBFINDER" \
